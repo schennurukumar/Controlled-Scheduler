@@ -13,7 +13,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/test")
-class TestController {
+class SchedulerController {
 
     private static final String SCHEDULED_TASKS = "scheduledTasks";
 
