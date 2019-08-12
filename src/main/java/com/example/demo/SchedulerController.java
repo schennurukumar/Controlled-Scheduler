@@ -1,55 +1,50 @@
-//package com.example.demo;
-//
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RequestMethod;
-//import org.springframework.web.bind.annotation.ResponseBody;
-//import org.springframework.web.bind.annotation.RestController;
-//
-//import java.util.List;
-//
-//@RestController
-//@Autowired
-//
-//public class SchedulerController {
-//
-//    private ScheduledTasks scheduledtask;
-//
-//    @RequestMapping(value = "start", method = RequestMethod.GET)
-//    public void start() throws Exception {
-//        scheduledtask.start();
-//    }
-//
-//}
-//
-//
-//package com.gap.dc.interfaces.leap.inbound.controller;
-//        import com.gap.dc.interfaces.leap.inbound.model.Event;
-//        import com.gap.dc.interfaces.leap.inbound.service.EventsService;
-//        import lombok.extern.slf4j.Slf4j;
-//        import org.springframework.beans.factory.annotation.Autowired;
-//        import org.springframework.web.bind.annotation.GetMapping;
-//        import org.springframework.web.bind.annotation.RestController;
-//
-//        import java.util.List;
-//
-//@RestController
-//@Slf4j
-//public class SortingController {
-//    @Autowired
-//    private EventsService eventsService;
-//    @GetMapping(value = "/Events")
-//    public List<Event> getEvents() {
-//
-//        List<Event> events = eventsService.findAll();
-//
-//        return events;
-//    }
-//}
-//
-//
-//
-//
-//
-//
-//
+package com.example.demo;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor;
+import org.springframework.scheduling.config.ScheduledTask;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Set;
+
+@RestController
+@RequestMapping("/test")
+class SchedulerController {
+
+    private static final String SCHEDULED_TASKS = "scheduledTasks";
+
+    @Autowired
+    private ScheduledAnnotationBeanPostProcessor postProcessor;
+
+    @Autowired
+    private ScheduledTasks scheduledTasks;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @GetMapping(value = "/stopScheduler")
+    public String stopSchedule() {
+        postProcessor.postProcessBeforeDestruction(scheduledTasks, SCHEDULED_TASKS);
+        return "OK";
+    }
+
+    @GetMapping(value = "/startScheduler")
+    public String startSchedule() {
+        postProcessor.postProcessAfterInitialization(scheduledTasks, SCHEDULED_TASKS);
+        return "OK";
+    }
+
+    @GetMapping(value = "/listScheduler")
+    public String listSchedules() throws JsonProcessingException {
+        Set<ScheduledTask> setTasks = postProcessor.getScheduledTasks();
+        if (!setTasks.isEmpty()) {
+            return objectMapper.writeValueAsString(setTasks);
+        } else {
+            return "No running tasks !";
+        }
+    }
+}
