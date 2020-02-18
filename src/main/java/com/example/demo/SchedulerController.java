@@ -21,6 +21,7 @@ class SchedulerController {
     private ScheduledAnnotationBeanPostProcessor postProcessor;
 
     @Autowired
+
     private ScheduledTasks scheduledTasks;
 
     @Autowired
@@ -45,6 +46,7 @@ class SchedulerController {
             return objectMapper.writeValueAsString(setTasks);
         } else {
             return "No running tasks !";
+
         }
     }
 }
